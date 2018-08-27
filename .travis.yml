@@ -1,0 +1,16 @@
+language: python
+
+python:
+  - "3.6"
+
+install:
+  - easy_install distribute
+  - pip install -r requirements.txt
+  - pip install pytest
+  - pip install pytest-cov
+  - pip install coveralls
+
+script:
+  - pytest --cov=app/
+after_success:
+  - coveralls

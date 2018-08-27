@@ -1,0 +1,109 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Stack OverFlow</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+    <header>    
+        <div class="container">
+            <div id="logo">
+                <h2>Stack Over Lite</h2>
+            </div>
+            <nav>
+                    <ul>
+                            <li class="here"><a href="signup.html">Sign Up</a></li>
+                            <li><a href="index.html">Login</a></li>
+                            <li ><a href="profile.html">Profile</a></li>
+                            <li><a href="#">Feeds</a></li>
+                    </ul>
+                </nav>
+        </div>
+       
+    </header>
+    <section id="main" class="feeder" style="height: 215px;">
+            <div class="container feeder">
+                <article id="crush" style="float: left;width: 65%;height: 94%;">
+                        <div class="textbox">
+                                <form class="textarea" style="height: 70%;">
+                                    <label style="color: #2870f5;font-weight: bold;font-size: 17px;">What is Your question Please?</label>
+                                        <br>
+                                    <div class="feed-box">
+                                        <textarea id="question"></textarea>
+                                    </div>
+                                    <div class="bun">
+                                        <input value="Post" style="height: 40px;width: 93px;color: white;background-color: cornflowerblue;border-style: none;border-radius: 4px;" type="button">
+                                    </div>
+                                </form>
+                            </div>
+                </article>
+                <aside id="sidebar">
+                        <h3>Stat</h3>
+                        <hr>
+                        <p>Answers <span>0</span></p>
+                        <p>Questions <span>0</span></p>
+                </aside>
+            </div>            
+    </section>
+        <section id="main">
+                <div class="container">
+                    <article id="qns">                        
+                        <div class="tab">
+                            <button class="tablinks" onclick="openTime(event, 'Recent')" id="defaultOpen">Recently Asked Questions</button>
+                            <button class="tablinks" onclick="openTime(event, 'Questions')">Question with all the Answers</button>
+                          </div>
+                          
+                          <div id="Recent" class="tabcontent">
+                            <p><a href="#">Symfony 4 event listener not registering</a><span class="number">56</span></p>
+                            
+                          </div>
+                          <div id="Questions" class="tabcontent">
+                              
+                                <p><a href="#">What are the seven data types?</a><span class="number">56</span></p>
+                                
+                                <ul>
+                                <li>number for both floating-point and integer numbers</li>
+                                <br>
+                                <li>String for strings,</li>
+                                <br>
+                                <li>boolean for logical values: true/false,</li>
+                                <br>
+                                <li>null – a type with a single value null, meaning “empty” or “does not exist”,
+                                    undefined – a type with a single value </li>
+                                <br>
+                                <li>object and symbol – for complex data structures and unique identifiers, we haven’t learnt them yet.</li>
+                                <br>
+                                <li>null – a type with a single value null, meaning “empty” or “does not exist”,
+                                    undefined – a type with a single value </li>
+                                <br>
+                                <li>number for both floating-point and integer numbers</li>
+                            </ul>
+                          </div>
+                    </article>
+                    <aside id="left-sidebar ads">
+                            
+                    </aside>
+                </div>
+                
+            </section>
+    <footer>
+        <p>Capsule Web. Copyright &copy; 2018</p>
+    </footer>
+    <script>
+        function openTime(evt, stat) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(stat).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        document.getElementById("defaultOpen").click()
+        </script>
+</body>
