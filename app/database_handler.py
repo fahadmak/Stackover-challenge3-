@@ -11,7 +11,6 @@ class DatabaseConnection:
         else:
             self.connect = psycopg2.connect(
                 "dbname='stackover' user='postgres' host='localhost' password='maka1997' port='5432'")
-            self.connect.autocommit = True
             self.cursor = self.connect.cursor()
 
     def create_tables(self):
@@ -47,19 +46,20 @@ class DatabaseConnection:
                         ON UPDATE CASCADE ON DELETE CASCADE
             )
             """)
-            
-        conn = None
         try:
             for command in commands:
                 self.cursor.execute(command)
             # close communication with the PostgreSQL database server
             self.cursor.close()
-            # commit the changes
-            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             print(error)
         finally:
-            if conn is not None:
-                conn.close()
+            if self.connect is not None:
+                self.connect.close()
 
-    
+    def insert_user(self, name, username, password):
+        """ insert a user into the users table """
+        command = """INSERT INTO users(name, username, password)
+                    VALUES(name, username, password);"""
+        self.cursor.execute(command)
+        self.connect.commit()
