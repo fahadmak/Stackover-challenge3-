@@ -1,13 +1,6 @@
 questions = []
 answers = []
 
-class User(object):
-    def __init__(self, user_id, name, username, password):
-        self.user_id = user_id
-        self.name = name
-        self.username = username
-        self.password = password
-
 class Question(object):
    
     def __init__(self, qn_id, title, body):
