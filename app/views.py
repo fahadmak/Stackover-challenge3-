@@ -2,9 +2,17 @@ from flask import Flask, jsonify, request, abort, Response
 
 from app.model import Question, Answer, questions, answers
 
+from werkzeug.security import check_password_hash
+
+import jwt
+
+import datetime
+
 from app import app
 
+from .database_handler import DatabaseConnection
 
+db = DatabaseConnection()
 def checkID(questionid):
     if questionid == "":
         abort(400)
@@ -14,6 +22,41 @@ def checkID(questionid):
         abort(404)
     return questionid
 
+@app.route('/api/v1/auth/signup', methods=['POST'])
+def signup_user():
+    data = request.get_json()
+    name = data['name']
+    if name == "":
+        abort(400)
+    username = data['username']
+    if username == "":
+        abort(400)
+    password = data['password']
+    if password == "":
+        abort(400)
+    query = db.get_user_by_username(username)
+    if query is None:        
+        db.insert_user(name, username, password)
+        return jsonify({"msg":"You have registered successfully"}), 201
+    else:
+        return jsonify({"msg":"Username already exists"}), 409
+
+@app.route('/api/v1/auth/login', methods=['POST'])
+def login_user():
+    data = request.get_json()
+    username = data['username']
+    if username == "":
+        abort(400)
+    password = data['password']
+    if password == "":
+        abort(400)
+    user = db.get_user_by_username(username)
+    if user is None:        
+        return jsonify({"msg":"User not found please register"}), 404
+    else:
+        if check_password_hash(user.password, password):
+            token = jwt.encode({'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, "hgffgd678667578689678645354645")
+            return jsonify({"msg":"Login Successful", "token": token.decode('UTF-8')}), 200   
 
 @app.route('/api/v1/questions', methods=['GET'])
 def get_all_questions():
@@ -36,7 +79,7 @@ def get_question_byID(question_id):
                 return jsonify(question), 200
             return jsonify({'msg': "question not found "}), 404
     else:
-        question_s = Question.get_all_questions()
+        question_s = Qustion.get_all_questions()
         if question_s == []:
             response = {
                 "msg": " There are no rides rides at the moment"}
