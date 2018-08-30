@@ -27,6 +27,7 @@ pluggy==0.7.1
 poyo==0.4.1
 py==1.5.4
 pylint==2.1.1
+psycopg2==2.7.5
 pytest==3.7.2
 pytest-cov==2.5.1
 python-dateutil==2.7.3
