@@ -59,7 +59,11 @@ def create_app(env_name):
         username = data['username']
         if username == "":
             return jsonify({"msg": "username missing"}), 401
+        if re.match(r'^[a-zA-Z0-9_.-]+$', username) is None:
+            return jsonify({"msg":"invalid username"}), 401
         password = data['password']
+        if re.match(r'[A-Za-z0-9@#$%^&+=]{8,}', password) is None:
+            return jsonify({"msg":"invalid password"}), 401
         if password == "":
             return jsonify({"msg": "password missing"}), 401
         user = db.get_user_by_username(username)
@@ -68,8 +72,8 @@ def create_app(env_name):
         else:
             if check_password_hash(user["password"], password):
                 payload = {
-                    'user': username, 
-                    'password': password
+                    'user': username,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=600)
                     }
                 token = jwt.encode(payload, 'secret')
                 return jsonify({"msg": "Login Successful", "token": token.decode('UTF-8')}), 200
@@ -104,9 +108,9 @@ def create_app(env_name):
     @auth_required
     def get_question_byid(current_user, question_id):
         if question_id == "":
-            return jsonify({"msg":"ID should be a number"}), 400
+            return jsonify({"msg": "ID should be a number"}), 400
         if type(question_id) == str:
-            return jsonify({"msg":"ID should be a number"}), 400
+            return jsonify({"msg": "ID should be a number"}), 400
         question = db.get_question_by_qnid(question_id)
         if question is None:        
             return jsonify({"msg": "There is no question by that id"}), 404
@@ -120,13 +124,28 @@ def create_app(env_name):
             return jsonify({"msg": "ID should be a number"}), 400
         if type(question_id) == str:
             return jsonify({"msg": "ID should be a number"}), 400
+        user_id = current_user["user_id"]
         query = db.get_all_questions()
         qn_ids = [question["qn_id"] for question in query]
-        question = question_id
-        if question not in qn_ids:        
+        if qn_ids is None:
+            return jsonify({"msg": "there is question for that id to be deleted" })
+        if question_id not in qn_ids:
             return jsonify({"msg": "There is no question by that id"}), 404
         else:
-            db.delete_question_byid(question_id)
+            db.delete_question_byid(question_id, user_id)
             return jsonify({"msg": "question {} has been successfully deleted".format(question_id)})
+
+    @app.route('/api/v1/questions/<questionId>/answers', methods=['POST'])
+    @auth_required
+    def post_answer(current_user, questionId):
+        data = request.get_json()
+        descr = data['descr']
+        if descr == "":
+            return jsonify({"msg": "title missing"}), 401
+        if len(descr) < 15:
+            return jsonify({"msg": "too short"}), 401
+        userid = current_user["user_id"]
+        db.insert_answer(descr, questionId, userid)
+        return jsonify({"msg": "You have successfully created an answer"}), 201
 
     return app
