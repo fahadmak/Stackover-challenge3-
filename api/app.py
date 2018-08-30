@@ -73,7 +73,7 @@ def create_app(env_name):
             if check_password_hash(user["password"], password):
                 payload = {
                     'user': username,
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=600)
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, seconds=12000)
                     }
                 token = jwt.encode(payload, 'secret')
                 return jsonify({"msg": "Login Successful", "token": token.decode('UTF-8')}), 200
@@ -100,7 +100,7 @@ def create_app(env_name):
     def get_questions(current_user):
         query = db.get_all_questions()
         if query == []:        
-            return jsonify({"msg":"There are no questions"}), 200
+            return jsonify({"msg": "There are no questions"}), 200
         else:
             return jsonify({"questions": query}), 200
         
@@ -111,8 +111,10 @@ def create_app(env_name):
             return jsonify({"msg": "ID should be a number"}), 400
         if type(question_id) == str:
             return jsonify({"msg": "ID should be a number"}), 400
-        question = db.get_question_by_qnid(question_id)
-        if question is None:        
+        user_id = current_user["user_id"]
+        query = db.get_all_questions()
+        qn_ids = [question["user_id"] for question in query if user_id == question["user_id"]]
+        if qn_ids is None:
             return jsonify({"msg": "There is no question by that id"}), 404
         else:
             return jsonify({"msg": "Question of {} has been retrieved".format(question_id)}), 201
@@ -126,14 +128,15 @@ def create_app(env_name):
             return jsonify({"msg": "ID should be a number"}), 400
         user_id = current_user["user_id"]
         query = db.get_all_questions()
-        qn_ids = [question["qn_id"] for question in query]
-        if qn_ids is None:
-            return jsonify({"msg": "there is question for that id to be deleted" })
-        if question_id not in qn_ids:
-            return jsonify({"msg": "There is no question by that id"}), 404
+        qn_ids = [question["user_id"] for question in query if user_id == question["user_id"]]
+        if qn_ids is []:
+            return jsonify({"msg": "there is question for that id"}), 404
         else:
-            db.delete_question_byid(question_id, user_id)
-            return jsonify({"msg": "question {} has been successfully deleted".format(question_id)})
+            if question_id not in qn_ids:
+                return jsonify({"msg": "there is question for that id"}), 404
+            else:
+                db.delete_question_byId(question_id, user_id)
+                return jsonify({"msg": "question {} has been successfully deleted".format(question_id)}), 200
 
     @app.route('/api/v1/questions/<questionId>/answers', methods=['POST'])
     @auth_required
@@ -147,5 +150,24 @@ def create_app(env_name):
         userid = current_user["user_id"]
         db.insert_answer(descr, questionId, userid)
         return jsonify({"msg": "You have successfully created an answer"}), 201
+
+    @app.route('/api/v1/questions/<questionId>/answers/<answerId>', methods=['PUT'])
+    @auth_required
+    def update_answer(current_user, questionId, answerId):
+        data = request.get_json()
+        descr = data['descr']
+        if descr == "":
+            return jsonify({"msg": "title missing"}), 401
+        if len(descr) < 15:
+            return jsonify({"msg": "too short"}), 401
+        user_id = current_user["user_id"]
+        questions = db.get_all_questions()
+        qn_ids = [question["user_id"] for question in questions if user_id == question["user_id"]]
+        if qn_ids is []:
+            return jsonify({"msg": "there is answers for that question id"}), 404
+        if questionId not in qn_ids:
+            return jsonify({"msg": "there is answers for that question id"}), 404
+        db.update_answer(descr, questionId, answerId)
+        return jsonify({"msg": "answer {} has been successfully deleted".format(answerId)}), 200
 
     return app
