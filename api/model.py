@@ -18,8 +18,10 @@ class Question(object):
 class Answer(object):
 
     def __init__(self, qn_id, an_id, descr, user_id):
+        self.an_id = an_id
         self.descr = descr
         self.qn_id = qn_id
-        self.an_id = an_id
         self.user_id = user_id
+
+
 
