@@ -161,7 +161,7 @@ class DatabaseConnection:
         self.cursor.execute(command)
         self.connect.commit()
 
-    def delete_question_byid(self, qn_id, user_id):
+    def delete_question_byId(self, qn_id, user_id):
         command = "DELETE FROM questions WHERE qn_id = '{}' AND user_id ='{}'".format(qn_id, user_id)
         self.cursor.execute(command)
         rows_deleted = self.cursor.rowcount
@@ -173,3 +173,47 @@ class DatabaseConnection:
         for command in commands:
             self.cursor.execute(command)
             self.connect.commit()
+
+    def get_all_answers(self):
+        """ select all answers in answers table """
+        command = "SELECT * FROM answers"
+        self.cursor.execute(command)
+        results = self.cursor.fetchall()
+        self.connect.commit()
+        if results is []:
+            return []
+        else:
+            answers = []
+            for result in results:
+                answer = {
+                    "an_id": result[0],
+                    "descr": result[1],
+                    "qn_id": result[2],
+                    "user_id": result[3],
+                }
+                answers.append(answer)
+            return answers
+
+    def get_answer_by_anId(self, an_id):
+        """ select a answer by answer id in the answers table """
+        command = "SELECT * FROM questions WHERE an_id = '{} AND user_id ='{}''".format(an_id)
+        self.cursor.execute(command)
+        self.connect.commit()
+        result = self.cursor.fetchone()
+        if result is None:
+            return None
+        else:
+            answer = {
+                "an_id": result[0],
+                "descr": result[1],
+                "qn_id": result[2],
+                "user_id": result[3],
+            }
+            print(answer)
+            return answer
+
+    def update_answer(self, descr, qn_id, an_id):
+        """ select a answer by answer id in the answers table """
+        command = "UPDATE answers SET descr = '{}' WHERE an_id = '{}' AND qn_id ='{}';".format(descr, an_id, qn_id)
+        self.cursor.execute(command)
+        self.connect.commit()
