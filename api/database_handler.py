@@ -124,6 +124,15 @@ class DatabaseConnection:
             print(question)
             return question
 
+    def insert_answer(self, descr, qn_id, user_id):
+        """ insert a answer into the answers table """
+        command = "INSERT INTO answers(descr, qn_id, user_id)\
+                    VALUES('{}', '{}', '{}');".format(descr, qn_id, user_id)
+
+        pprint(command)
+        self.cursor.execute(command)
+        self.connect.commit()
+
     def get_all_questions(self):
         """ select all questions in questions table """
         command = "SELECT * FROM questions" 
@@ -152,8 +161,8 @@ class DatabaseConnection:
         self.cursor.execute(command)
         self.connect.commit()
 
-    def delete_question_byid(self, qn_id):
-        command = "DELETE FROM questions WHERE qn_id = '{}'".format(qn_id)
+    def delete_question_byid(self, qn_id, user_id):
+        command = "DELETE FROM questions WHERE qn_id = '{}' AND user_id ='{}'".format(qn_id, user_id)
         self.cursor.execute(command)
         rows_deleted = self.cursor.rowcount
         self.connect.commit()
@@ -164,7 +173,3 @@ class DatabaseConnection:
         for command in commands:
             self.cursor.execute(command)
             self.connect.commit()
-            
-            
-
-        
